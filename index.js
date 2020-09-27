@@ -1,6 +1,4 @@
 const fs = require("fs");
-const { OutgoingMessage } = require("http");
-// fs.readFile('./')
 const readFile = ()=>{
     let data = [];
     for(let i=0;i<10;i++){
