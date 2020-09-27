@@ -25,45 +25,47 @@ let schema = `[{
             "value": "location",
             "label": "Location"
         },
-        "Code": {
-            "value": "code",
-            "label": "Code"
+        "CodeNew": {
+            "value": {
+                "Company": {
+                    "value": "company",
+                    "label": "Company"
+                },
+                "Code": {
+                    "value": "code",
+                    "label": "Code"
+                }
+            },
+            "label": "CodeNew"
         }
     },
     "label": "Location",
     "default": "hidden"
 }]`;
-const parseSchema = (schemaStr, data) => {
+function parse(schema, tmp, data){
+    
+    if(typeof schema['value']==='string'){
+        tmp[schema.label] = data[schema.value];
+        return;
+    } else {
+        tmp[schema.label]=tmp[schema.label]||{};
+        if(typeof schema['value']==='object'){
+            for(let k of Object.keys(schema.value)){
+                parse(schema.value[k], tmp[schema.label], data);
+            }
+        } 
+    }
+}
+function parseSchema(schemaStr, data){
     let schema = JSON.parse(schemaStr);
     return data.map(i=>{
         let tmp = {};
         for(let item of schema){
-            const {value, label} = item;
-            
-            if(typeof value == "object"){
-                
-                tmp[label] = {};
-                for(let key in value){
-                    tmp[label][key] = {};
-                    let middle = JSON.parse(JSON.stringify(value[key]))
-                    tmp[label][middle.label] = i[middle.value];
-                }
-                
-            } else {
-                if(i[value] == null && 'default' in item) {
-                    i[value] = item.default;
-                }
-                tmp[label] = i[value];
-            }
-            
+            parse(item,tmp, i);
         }
         return tmp;
     })
     
 }
 let data_final = parseSchema(schema, data);
-console.dir(data_final[1]);
-// let schemaStr = `[()]`;
-// const parseSchema2 = (schemaStr, data)=>{
-
-// }
+console.dir(data_final);
